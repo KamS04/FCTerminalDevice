@@ -1,0 +1,63 @@
+\documentclass{article}
+\usepackage{geometry}[margintop=0pt,marginbottom=0pt]
+\pagestyle{empty}
+
+\begin{document}
+
+\section*{Terminal Device}
+
+Terminal Device gives very simple, very basic API. The api provides a \textbf{write}, \textbf{read}, and \textbf{flush} function. All of this is accessed via a single interrupt. The register \textbf{r1} is set to which function you are using.
+
+\begin{table}[ht!]
+    \centering
+    \begin{tabular}{| l | c |}
+        \hline
+        \textbf{WRITE} &
+        \begin{minipage}{0.85\linewidth}
+            \vspace{12pt}
+            \begin{itemize}
+                \item 01
+                \item \textbf{buffer} as RAV in \textbf{r2}
+                \item \textbf{length} in \textbf{r3}
+                \item Writes the string of length in the buffer to the console
+            \end{itemize}
+            \vspace{12pt}
+        \end{minipage} \\
+        \hline
+        \textbf{READ} &
+        \begin{minipage}{0.85\linewidth}
+            \vspace{12pt}
+            \begin{itemize}
+                \item 02
+                \item \textbf{buffer} as RAV in \textbf{r2}
+                \item \textbf{length} in \textbf{r3}
+                \item \textbf{use\_old} in \textbf{r4}
+                \item use\_old should be a single byte boolean
+                \item Reads a line from the input (or uses old buffered string if available and use\_old is set) and then puts it into the buffer (or as much as can be put in there)
+                \item Returns in \textbf{acu} the total size of the string (at the start of this interrupt)
+            \end{itemize}
+            \vspace{12pt}
+        \end{minipage} \\
+        \hline
+        \textbf{FLUSH} &
+        \begin{minipage}{0.85\linewidth}
+            \vspace{12pt}
+            \begin{itemize}
+                \item 03
+                \item No args
+                \item Clears out the buffered string that may have been previously read from the console
+            \end{itemize}
+            \vspace{12pt}
+        \end{minipage} \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\textit{Note: The communication buffer is capped at 50 bytes, so this device moves stuff in chunks of 47 or 48 bytes. (1-3 byte loss for command,size descriptors and/or NULL terminating character)}\\
+\\
+This device uses the conventional FantasyConsole I/O device system that uses a device ID buffer to determine the start interrupt given a device name, and then that interrupt belongs to this device.
+\\
+\\
+\noindent \textbf{Device name:} 0x7fu
+
+\end{document}
